@@ -30,7 +30,7 @@ new = Hamt <$> newTVar By6Bits.empty
 newIO :: IO (Hamt a)
 newIO = Hamt <$> newTVarIO By6Bits.empty
 
-focus :: (Hashable key) => Focus element STM result -> (element -> key) -> key -> Hamt element -> STM result
+focus :: (Eq key, Hashable key) => Focus element STM result -> (element -> key) -> key -> Hamt element -> STM result
 focus focus elementToKey key = focusExplicitly focus (hash key) ((==) key . elementToKey)
 
 focusExplicitly :: Focus a STM b -> Int -> (a -> Bool) -> Hamt a -> STM b
@@ -41,7 +41,7 @@ focusExplicitly focus hash test hamt =
 
 -- |
 -- Returns a flag, specifying, whether the size has been affected.
-insert :: (Hashable key) => (element -> key) -> element -> Hamt element -> STM Bool
+insert :: (Eq key, Hashable key) => (element -> key) -> element -> Hamt element -> STM Bool
 insert elementToKey element =
   let !key = elementToKey element
    in insertExplicitly (hash key) ((==) key . elementToKey) element
@@ -96,7 +96,7 @@ pair depth hash1 branch1 hash2 branch2 =
 
 -- |
 -- Returns a flag, specifying, whether the size has been affected.
-lookup :: (Hashable key) => (element -> key) -> key -> Hamt element -> STM (Maybe element)
+lookup :: (Eq key, Hashable key) => (element -> key) -> key -> Hamt element -> STM (Maybe element)
 lookup elementToKey key = lookupExplicitly (hash key) ((==) key . elementToKey)
 
 lookupExplicitly :: Int -> (a -> Bool) -> Hamt a -> STM (Maybe a)
